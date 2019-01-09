@@ -3,9 +3,9 @@ package om.com.quotawidget
 import android.app.Application
 import timber.log.Timber
 
-class RequestrApp : Application() {
+class QuotaWidget : Application() {
     companion object {
-        lateinit var appInstance: RequestrApp
+        lateinit var appInstance: QuotaWidget
 
         lateinit var component: AppComponent
     }

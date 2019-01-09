@@ -7,7 +7,7 @@ android {
     compileSdkVersion 28
 
     defaultConfig {
-        applicationId "om.com.requestr"
+        applicationId "om.com.quotawidget"
         minSdkVersion 21
         targetSdkVersion 28
         versionCode 1
@@ -54,4 +54,10 @@ dependencies {
 
     // Timber
     implementation 'com.jakewharton.timber:timber:4.6.0'
+
+    // JSOUP
+    implementation 'org.jsoup:jsoup:1.10.2'
+
+    // Android KTX
+    implementation 'androidx.core:core-ktx:1.0.1'
 }

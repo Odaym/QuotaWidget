@@ -1,27 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widgetLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/widget_shape"
-    android:orientation="vertical"
-    android:padding="10dp">
+    android:padding="@dimen/margin10">
 
-    <TextView
-        android:id="@+id/totalUsageTV"
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/quota_used_progress_bar_height"
+        android:layout_weight="1">
+
+        <ProgressBar
+            android:id="@+id/quotaUsageProgressBar"
+            style="@style/Widget.ProgressBar.Vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical" />
+
+        <TextView
+            android:id="@+id/remainingProgressValueTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center"
+            android:layout_marginBottom="@dimen/margin10"
+            android:textColor="@android:color/white"
+            android:textStyle="bold" />
+    </FrameLayout>
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/white" />
+        android:layout_marginStart="@dimen/margin10"
+        android:layout_weight="1"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/maxAvailableTV"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@android:color/white" />
+        <TextView
+            android:id="@+id/totalUsedQuotaTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/quota_used_font"
+            android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/remainingTV"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@android:color/white" />
-
+        <TextView
+            android:id="@+id/monthlyMaxTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/remaining_quota_font" />
+    </LinearLayout>
 </LinearLayout>

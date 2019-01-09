@@ -11,75 +11,66 @@ import android.os.Build
 import android.os.IBinder
 import android.support.v4.app.NotificationCompat
 import android.widget.RemoteViews
+import org.jetbrains.anko.longToast
+import java.text.DecimalFormat
+import java.text.NumberFormat
+import java.text.ParseException
 
 class WidgetService : Service() {
+
+    private lateinit var remoteViews: RemoteViews
+
+    private val dcmlFormatter = DecimalFormat("0.#")
+    private val nbrFormatter = NumberFormat.getInstance()
 
     override fun onCreate() {
         super.onCreate()
 
-        if (Build.VERSION.SDK_INT >= 26) {
-            val CHANNEL_ID = "my_channel_01"
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                "Channel human readable title",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channelId = NOTIFICATION_CHANNEL_NAME
 
-            (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).createNotificationChannel(
-                channel
-            )
+            (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+                .createNotificationChannel(
+                    NotificationChannel(
+                        channelId,
+                        NOTIFICATION_NAME,
+                        NotificationManager.IMPORTANCE_DEFAULT
+                    )
+                )
 
-            val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("")
-                .setContentText("").build()
-
-            startForeground(1, notification)
+            startForeground(1, NotificationCompat.Builder(this, channelId).build())
         }
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        val appWidgetManager = AppWidgetManager.getInstance(
-            this.applicationContext
-        )
+        val usageDetails = intent.getParcelableExtra<UsageDetails>(USAGE_DETAILS_EXTRA)
 
-        val allWidgetIds = intent
-            .getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)
-
-        val usageDetails = intent.getParcelableExtra<UsageDetails>("UsageDetails")
-
-
-        //      ComponentName thisWidget = new ComponentName(getApplicationContext(),
-        //              MyWidgetProvider.class);
-        //      int[] allWidgetIds2 = appWidgetManager.getAppWidgetIds(thisWidget);
+        val allWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)
 
         for (widgetId in allWidgetIds) {
-            // create some random data
+            remoteViews =
+                    RemoteViews(this.applicationContext.packageName, R.layout.widget_layout)
 
-            val remoteViews =
-                RemoteViews(this.applicationContext.packageName, R.layout.widget_layout)
+            with(usageDetails) {
+                if (total_actual_usage != null) {
+                    displayActualUsage(getFormattedNumber(total_actual_usage))
+                }
 
-            // Set the text
-            remoteViews.setTextViewText(R.id.totalUsageTV, "Total usage ${usageDetails.total_actual_usage}")
+                if (monthly_max != null) {
+                    displayMonthlyMax(getFormattedNumber(monthly_max))
+                }
 
-            // Register an onClickListener
-            val clickIntent = Intent(
-                this.applicationContext,
-                WidgetProvider::class.java
-            )
+                if (remaining_monthly_within_max != null && monthly_max != null) {
+                    fillUpUsageBar(
+                        getFormattedNumber(remaining_monthly_within_max),
+                        getFormattedNumber(monthly_max)
+                    )
+                }
+            }
 
-            clickIntent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-            clickIntent.putExtra(
-                AppWidgetManager.EXTRA_APPWIDGET_IDS,
-                allWidgetIds
-            )
-
-            val pendingIntent = PendingIntent.getBroadcast(
-                applicationContext, 0, clickIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT
-            )
-            remoteViews.setOnClickPendingIntent(R.id.totalUsageTV, pendingIntent)
-            appWidgetManager.updateAppWidget(widgetId, remoteViews)
+            setupRefreshListener(allWidgetIds, widgetId)
         }
+
         stopSelf()
 
         return Service.START_STICKY
@@ -87,5 +78,79 @@ class WidgetService : Service() {
 
     override fun onBind(intent: Intent): IBinder? {
         return null
+    }
+
+    private fun displayActualUsage(totalUsed: Double) =
+        remoteViews.setTextViewText(
+            R.id.totalUsedQuotaTV,
+            getString(
+                R.string.used_quota,
+                dcmlFormatter.format(String.format("%.2f", totalUsed).toDouble())
+            )
+        )
+
+    private fun displayMonthlyMax(monthlyMax: Double) =
+        remoteViews.setTextViewText(
+            R.id.monthlyMaxTV,
+            getString(
+                R.string.monthly_max_quota,
+                dcmlFormatter.format(String.format("%.2f", monthlyMax).toDouble()), "GB"
+            )
+        )
+
+    private fun fillUpUsageBar(remainingQuota: Double, monthlyMax: Double) {
+        val remainingPercentage = ((remainingQuota * 100) / monthlyMax).toInt()
+
+        remoteViews.setTextViewText(
+            R.id.remainingProgressValueTV,
+            getString(
+                R.string.remaining_quota_progress_value,
+                remainingPercentage
+            )
+        )
+
+        remoteViews.setProgressBar(
+            R.id.quotaUsageProgressBar,
+            100,
+            remainingPercentage,
+            false
+        )
+    }
+
+    private fun setupRefreshListener(allWidgetIds: IntArray, widgetId: Int) {
+        val appWidgetManager = AppWidgetManager.getInstance(
+            this.applicationContext
+        )
+
+        val clickIntent = Intent(
+            this.applicationContext,
+            WidgetProvider::class.java
+        )
+
+        clickIntent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+        clickIntent.putExtra(
+            AppWidgetManager.EXTRA_APPWIDGET_IDS,
+            allWidgetIds
+        )
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            applicationContext, 0, clickIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        remoteViews.setOnClickPendingIntent(R.id.widgetLayout, pendingIntent)
+        appWidgetManager.updateAppWidget(widgetId, remoteViews)
+    }
+
+    private fun getFormattedNumber(value: String): Double {
+        var parsedNumber = 0.0
+
+        try {
+            parsedNumber = nbrFormatter.parse(value).toDouble() / 1000
+        } catch (e: ParseException) {
+            longToast(getString(R.string.html_elements_parse_exception_blame_idm))
+        }
+
+        return parsedNumber
     }
 }

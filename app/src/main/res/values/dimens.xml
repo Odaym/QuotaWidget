@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="quota_used_font">35sp</dimen>
+    <dimen name="remaining_quota_font">15sp</dimen>
+
+    <dimen name="widget_height">40dp</dimen>
+    <dimen name="widget_width">150dp</dimen>
+
+    <dimen name="margin10">10dp</dimen>
+
+    <dimen name="quota_used_progress_bar_height">80dp</dimen>
+</resources>

@@ -28,7 +28,7 @@ class WidgetProvider : AppWidgetProvider(), MainActivityView {
         this.context = context
         this.appWidgetManager = appWidgetManager
 
-        RequestrApp.component.inject(this)
+        QuotaWidget.component.inject(this)
 
         presenter = MainActivityPresenter(
             this,
@@ -38,22 +38,24 @@ class WidgetProvider : AppWidgetProvider(), MainActivityView {
             compositeDisposable
         )
 
-        presenter.getUsageDetails()
+        presenter.login()
     }
 
+    override fun notifyLoginSuccess() = presenter.getConsumption()
+
     override fun showUsageDetails(it: UsageDetails) {
-        val thisWidget = ComponentName(
+        val usageWidget = ComponentName(
             context,
             WidgetProvider::class.java
         )
-        val allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget)
+        val allWidgetIds = appWidgetManager.getAppWidgetIds(usageWidget)
 
         val intent = Intent(
             context.applicationContext,
             WidgetService::class.java
         )
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, allWidgetIds)
-        intent.putExtra("UsageDetails", it)
+        intent.putExtra(USAGE_DETAILS_EXTRA, it)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startForegroundService(intent)

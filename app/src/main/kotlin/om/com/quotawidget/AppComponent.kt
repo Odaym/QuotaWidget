@@ -6,7 +6,7 @@ import javax.inject.Singleton
 @Singleton
 @Component(modules = [(AppModule::class)])
 interface AppComponent {
-    fun inject(app: RequestrApp)
+    fun inject(app: QuotaWidget)
 
     fun inject(widgetProvider: WidgetProvider)
 

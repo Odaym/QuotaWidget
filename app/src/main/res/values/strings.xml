@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">Requestr</string>
+    <string name="app_name">Quota Widget</string>
+    <string name="used_quota">%1$s</string>
+    <string name="monthly_max_quota">OF %1$s %2$s USED</string>
+    <string name="remaining_quota_progress_value">%1$d%%</string>
+    <string name="html_elements_parse_exception_blame_idm">\"Seems like IDM has changed the contents of their Quota Consumption page! Call them up and complain - 1282\"</string>
 </resources>
