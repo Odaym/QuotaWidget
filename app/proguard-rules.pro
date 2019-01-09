@@ -21,7 +21,7 @@
 # RETROFIT
 -dontwarn retrofit2.**
 -keep class retrofit2.** { *; }
--keep class co.seez.seezr.data.responsemodels.** { *; }
+-keep class om.com.quotawidget.** { *; }
 -keepattributes Signature
 -keepattributes Exceptions
 
@@ -49,3 +49,6 @@
 -keepclassmembers class * extends org.greenrobot.eventbus.util.ThrowableFailureEvent {
     <init>(java.lang.Throwable);
 }
+
+# JSOUP
+-keeppackagenames org.jsoup.nodes
