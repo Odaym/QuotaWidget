@@ -16,9 +16,9 @@ import om.com.quotawidget.data.Repository
 import om.com.quotawidget.data.UsageDetails
 
 class WidgetProvider : AppWidgetProvider(), WidgetProviderView {
-    lateinit var repository: Repository
+    private lateinit var repository: Repository
 
-    lateinit var prefs: SharedPreferences
+    private lateinit var prefs: SharedPreferences
 
     private var compositeDisposable = CompositeDisposable()
     private lateinit var presenter: MainActivityPresenter
