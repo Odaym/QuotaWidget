@@ -21,7 +21,6 @@
 # RETROFIT
 -dontwarn retrofit2.**
 -keep class retrofit2.** { *; }
--keep class om.com.quotawidget.** { *; }
 -keepattributes Signature
 -keepattributes Exceptions
 

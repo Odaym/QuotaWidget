@@ -1,16 +1,17 @@
-package om.com.quotawidget
+package om.com.quotawidget.data
 
+import android.content.SharedPreferences
 import io.reactivex.Observable
 import okhttp3.ResponseBody
 import retrofit2.Response
 
-class RepositoryImpl : Repository {
-    private val apiService: ApiService = HttpClient().initializeHttpClient()
+class Repository(prefs: SharedPreferences) {
+    private val apiService: ApiService = HttpClient(prefs).initializeHttpClient()
 
-    override fun triggerCloudFunction(): Observable<UsageDetails?> =
+    fun triggerCloudFunction(): Observable<UsageDetails?> =
         apiService.triggerCloudFunction()
 
-    override fun login(): Observable<Response<ResponseBody>> =
+    fun login(): Observable<Response<ResponseBody>> =
         apiService.login(
             "",
             "",
@@ -23,6 +24,6 @@ class RepositoryImpl : Repository {
             ""
         )
 
-    override fun getConsumption(): Observable<Response<ResponseBody>> =
+    fun getConsumption(): Observable<Response<ResponseBody>> =
         apiService.getConsumption()
 }

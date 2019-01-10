@@ -1,4 +1,4 @@
-package om.com.quotawidget
+package om.com.quotawidget.data
 
 import io.reactivex.Observable
 import okhttp3.ResponseBody

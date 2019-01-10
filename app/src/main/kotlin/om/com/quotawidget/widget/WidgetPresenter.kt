@@ -1,11 +1,16 @@
-package om.com.quotawidget
+package om.com.quotawidget.widget
 
 import io.reactivex.Scheduler
 import io.reactivex.disposables.CompositeDisposable
+import om.com.quotawidget.MONTHLY_MAX_HTML_ELEMENT_ID
+import om.com.quotawidget.QUOTA_REMAINING_HTML_ELEMENT_ID
+import om.com.quotawidget.TOTAL_ACTUAL_USAGE_HTML_ELEMENT_ID
+import om.com.quotawidget.data.Repository
+import om.com.quotawidget.data.UsageDetails
 import org.jsoup.Jsoup
 
 class MainActivityPresenter(
-    private val view: MainActivityView,
+    private val view: WidgetProviderView,
     private val repository: Repository,
     private val backgroundScheduler: Scheduler,
     private val mainScheduler: Scheduler,
@@ -45,13 +50,19 @@ class MainActivityPresenter(
                     val actualUsage = document.select(TOTAL_ACTUAL_USAGE_HTML_ELEMENT_ID).text()
                     val remaining = document.select(QUOTA_REMAINING_HTML_ELEMENT_ID).text()
 
-                    view.showUsageDetails(UsageDetails(monthlyMax, actualUsage, remaining))
+                    view.showUsageDetails(
+                        UsageDetails(
+                            monthlyMax,
+                            actualUsage,
+                            remaining
+                        )
+                    )
                 }
         )
     }
 }
 
-interface MainActivityView {
+interface WidgetProviderView {
     fun notifyLoginSuccess()
     fun showUsageDetails(it: UsageDetails)
 }

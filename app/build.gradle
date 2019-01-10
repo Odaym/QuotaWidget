@@ -59,16 +59,9 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
 
-    // Dagger
-    kapt "com.google.dagger:dagger-compiler:$dagger_version"
-    implementation "com.google.dagger:dagger:$dagger_version"
-
     // Anko
     implementation "org.jetbrains.anko:anko-commons:$anko_version"
     implementation "org.jetbrains.anko:anko-design:$anko_version"
-
-    // Timber
-    implementation 'com.jakewharton.timber:timber:4.6.0'
 
     // JSOUP
     implementation 'org.jsoup:jsoup:1.10.2'

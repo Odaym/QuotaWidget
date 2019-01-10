@@ -1,19 +1,24 @@
-package om.com.quotawidget
+package om.com.quotawidget.widget
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Build
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import javax.inject.Inject
+import om.com.quotawidget.APPLICATION_PREFS_KEY
+import om.com.quotawidget.USAGE_DETAILS_EXTRA
+import om.com.quotawidget.data.Repository
+import om.com.quotawidget.data.UsageDetails
 
-class WidgetProvider : AppWidgetProvider(), MainActivityView {
-    @Inject
+class WidgetProvider : AppWidgetProvider(), WidgetProviderView {
     lateinit var repository: Repository
+
+    lateinit var prefs: SharedPreferences
 
     private var compositeDisposable = CompositeDisposable()
     private lateinit var presenter: MainActivityPresenter
@@ -28,7 +33,12 @@ class WidgetProvider : AppWidgetProvider(), MainActivityView {
         this.context = context
         this.appWidgetManager = appWidgetManager
 
-        QuotaWidget.component.inject(this)
+        prefs = context.getSharedPreferences(
+            APPLICATION_PREFS_KEY,
+            Context.MODE_PRIVATE
+        )
+
+        repository = Repository(prefs)
 
         presenter = MainActivityPresenter(
             this,

@@ -1,4 +1,4 @@
-package om.com.quotawidget
+package om.com.quotawidget.widget
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -11,8 +11,12 @@ import android.os.Build
 import android.os.IBinder
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
+import om.com.quotawidget.NOTIFICATION_CHANNEL_NAME
+import om.com.quotawidget.NOTIFICATION_NAME
+import om.com.quotawidget.R
+import om.com.quotawidget.USAGE_DETAILS_EXTRA
+import om.com.quotawidget.data.UsageDetails
 import org.jetbrains.anko.longToast
-import timber.log.Timber
 import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.text.ParseException
@@ -50,12 +54,14 @@ class WidgetService : Service() {
 
         for (widgetId in allWidgetIds) {
             remoteViews =
-                    RemoteViews(this.applicationContext.packageName, R.layout.widget_layout)
+                    RemoteViews(
+                        this.applicationContext.packageName,
+                        R.layout.widget_layout
+                    )
 
             with(usageDetails) {
                 if (total_actual_usage != null) {
                     displayActualUsage(getFormattedNumber(total_actual_usage))
-                    Timber.d("Total actual usage ${getFormattedNumber(total_actual_usage)}")
                 }
 
                 if (monthly_max != null) {

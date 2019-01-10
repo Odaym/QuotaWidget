@@ -1,4 +1,4 @@
-package om.com.quotawidget
+package om.com.quotawidget.data
 
 import android.content.SharedPreferences
 import okhttp3.Interceptor
@@ -6,26 +6,19 @@ import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
+import om.com.quotawidget.COOKIE_REQUEST_HEADER_PROPERTY
+import om.com.quotawidget.COOKIE_RESPONSE_HEADER_PROPERTY
+import om.com.quotawidget.IDM_SESSION_COOKIE_PREF
+import om.com.quotawidget.SERVER_BASE_URL
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
-class HttpClient {
-    @Inject
-    lateinit var prefs: SharedPreferences
-
-    companion object {
-        const val CURRENT_SERVER_ADDRESS: String =
-            "https://customers.idm.net.lb/AcctManagement/"
-    }
-
+class HttpClient(val prefs: SharedPreferences) {
     fun initializeHttpClient(): ApiService {
-        QuotaWidget.component.inject(this)
-
         val client = OkHttpClient.Builder()
             .protocols(Collections.singletonList(Protocol.HTTP_1_1))
             .followRedirects(false)
@@ -46,7 +39,7 @@ class HttpClient {
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)
-            .baseUrl(CURRENT_SERVER_ADDRESS)
+            .baseUrl(SERVER_BASE_URL)
             .build()
             .create(ApiService::class.java)
     }
