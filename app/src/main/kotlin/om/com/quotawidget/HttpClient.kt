@@ -1,8 +1,6 @@
 package om.com.quotawidget
 
-import android.annotation.SuppressLint
 import android.content.SharedPreferences
-import com.google.gson.GsonBuilder
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
@@ -11,7 +9,6 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import timber.log.Timber
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -31,10 +28,11 @@ class HttpClient {
 
         val client = OkHttpClient.Builder()
             .protocols(Collections.singletonList(Protocol.HTTP_1_1))
+            .followRedirects(false)
             .readTimeout(45, TimeUnit.SECONDS)
             .writeTimeout(45, TimeUnit.SECONDS)
-            .addInterceptor(AddInfoInterceptor())
             .addInterceptor(ReceivedCookiesInterceptor())
+            .addInterceptor(AddInfoInterceptor())
             .addInterceptor(
                 HttpLoggingInterceptor()
                     .setLevel(HttpLoggingInterceptor.Level.BODY)
@@ -44,13 +42,9 @@ class HttpClient {
             }
             .build()
 
-        val gson = GsonBuilder()
-            .setLenient()
-            .create()
-
         return Retrofit.Builder()
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .addConverterFactory(GsonConverterFactory.create(gson))
+            .addConverterFactory(GsonConverterFactory.create())
             .client(client)
             .baseUrl(CURRENT_SERVER_ADDRESS)
             .build()
@@ -58,13 +52,11 @@ class HttpClient {
     }
 
     inner class AddInfoInterceptor : Interceptor {
-        @SuppressLint("HardwareIds")
-        @Throws(IOException::class)
         override fun intercept(chain: Interceptor.Chain): Response {
             val builder = chain.request().newBuilder()
 
             val prefsSessionCookie = prefs.getStringSet(
-                "session_cookie",
+                IDM_SESSION_COOKIE_PREF,
                 HashSet()
             ) as HashSet
 
@@ -75,11 +67,10 @@ class HttpClient {
             builder.addHeader("Upgrade-Insecure-Requests", "1")
             builder.addHeader("Content-Type", "text/html; charset=utf-8")
             builder.addHeader("Referer", "https://customers.idm.net.lb/AcctManagement/")
-//            builder.addHeader("Accept-Encoding", "gzip, deflate, br")
             builder.addHeader("Accept-Language", "en-US,en;q=0.9")
             for (cookie in prefsSessionCookie) {
                 builder.addHeader(
-                    "Cookie",
+                    COOKIE_REQUEST_HEADER_PROPERTY,
                     cookie
                 )
             }
@@ -101,16 +92,14 @@ class HttpClient {
         override fun intercept(chain: Interceptor.Chain): Response {
             val originalResponse = chain.proceed(chain.request())
 
-            if (!originalResponse.headers("Set-Cookie").isEmpty()) {
+            if (!originalResponse.headers(COOKIE_RESPONSE_HEADER_PROPERTY).isEmpty()) {
                 val cookies = hashSetOf<String>()
 
-                for (header in originalResponse.headers("Set-Cookie")) {
+                for (header in originalResponse.headers(COOKIE_RESPONSE_HEADER_PROPERTY)) {
                     cookies.add(header)
                 }
 
-                Timber.d("Cookies - $cookies")
-
-                prefs.edit().putStringSet("session_cookie", cookies).apply()
+                prefs.edit().putStringSet(IDM_SESSION_COOKIE_PREF, cookies).apply()
             }
 
             return originalResponse

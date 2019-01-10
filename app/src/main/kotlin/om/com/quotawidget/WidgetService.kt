@@ -12,6 +12,7 @@ import android.os.IBinder
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import org.jetbrains.anko.longToast
+import timber.log.Timber
 import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.text.ParseException
@@ -54,6 +55,7 @@ class WidgetService : Service() {
             with(usageDetails) {
                 if (total_actual_usage != null) {
                     displayActualUsage(getFormattedNumber(total_actual_usage))
+                    Timber.d("Total actual usage ${getFormattedNumber(total_actual_usage)}")
                 }
 
                 if (monthly_max != null) {

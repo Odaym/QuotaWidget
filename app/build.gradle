@@ -3,6 +3,10 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
+def keystorePF = rootProject.file("properties/keystore.properties")
+def keystoreProps = new Properties()
+keystoreProps.load(new FileInputStream(keystorePF))
+
 android {
     compileSdkVersion 28
 
@@ -15,11 +19,24 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        release {
+            storeFile file(keystoreProps['storeFile'])
+            storePassword keystoreProps['storePassword']
+            keyAlias keystoreProps['keyAlias']
+            keyPassword keystoreProps['keyPassword']
+        }
+    }
+
     buildTypes {
         release {
+            debuggable false
+
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            signingConfig signingConfigs.release
         }
     }
 
